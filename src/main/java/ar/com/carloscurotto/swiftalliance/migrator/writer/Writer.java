@@ -1,5 +1,6 @@
 package ar.com.carloscurotto.swiftalliance.migrator.writer;
 
+import ar.com.carloscurotto.swiftalliance.migrator.record.Record;
 import ar.com.carloscurotto.swiftalliance.migrator.service.Service;
 
 /**
@@ -10,7 +11,7 @@ import ar.com.carloscurotto.swiftalliance.migrator.service.Service;
  * @param <T>
  *            the specified type record to write.
  */
-public interface Writer<T> extends Service {
+public interface Writer<T extends Record> extends Service {
 
 	/**
 	 * Writes the given record.

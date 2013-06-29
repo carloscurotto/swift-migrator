@@ -1,5 +1,6 @@
 package ar.com.carloscurotto.swiftalliance.migrator.reader;
 
+import ar.com.carloscurotto.swiftalliance.migrator.record.Record;
 import ar.com.carloscurotto.swiftalliance.migrator.service.Service;
 
 /**
@@ -10,7 +11,7 @@ import ar.com.carloscurotto.swiftalliance.migrator.service.Service;
  * @param <T>
  *            the specified type record to read.
  */
-public interface Reader<T> extends Service {
+public interface Reader<T extends Record> extends Service {
 
 	/**
 	 * Reads the next record of the specified type.
