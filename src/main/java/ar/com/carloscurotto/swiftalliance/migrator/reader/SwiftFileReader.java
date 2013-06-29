@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import ar.com.carloscurotto.swiftalliance.migrator.record.SwiftRecord;
 import ar.com.carloscurotto.swiftalliance.migrator.service.AbstractService;
@@ -30,6 +31,8 @@ public class SwiftFileReader extends AbstractService implements
 
 	@Override
 	public SwiftRecord read() {
+		this.processCurrentRecordLines();
+		
 		SwiftRecord record = new SwiftRecord();
 		
 		record.setLocalBank(this.extractLocalBank());
@@ -49,6 +52,24 @@ public class SwiftFileReader extends AbstractService implements
 		return record;
 	}
 	
+	private void processCurrentRecordLines() {
+		int processedLinesIndex = 0;
+		Vector<String> processedLines = new Vector<String>();
+		for (int currentLinesIndex = 0; currentLinesIndex < this.currentRecordLines.size(); currentLinesIndex++) {
+			String currentLine = this.currentRecordLines.get(currentLinesIndex);
+			if (!(currentLine.startsWith("{1:") || currentLine.startsWith(":") || currentLine.startsWith("-}$"))) {
+				if (currentLinesIndex != 0) {
+					String previousLine = processedLines.remove(processedLinesIndex - 1);
+					processedLines.add(previousLine + currentLine);
+				}
+			} else {
+				processedLines.add(processedLinesIndex, currentLine);
+				processedLinesIndex++;
+			}			
+		}
+		this.currentRecordLines = new ArrayList<String>(processedLines);
+	}
+
 	private Map<String, String> extractGenericFields() {
 		Map<String, String> result = new HashMap<String, String>();
 		for (String line : this.currentRecordLines) {
