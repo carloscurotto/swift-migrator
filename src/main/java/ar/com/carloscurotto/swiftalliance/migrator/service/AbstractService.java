@@ -1,9 +1,15 @@
 package ar.com.carloscurotto.swiftalliance.migrator.service;
 
+/**
+ * Generic logic common to all services.
+ * 
+ * @author carloscurotto
+ * 
+ */
 public abstract class AbstractService implements Service {
-	
+
 	private boolean opened;
-	
+
 	@Override
 	public void open() {
 		try {
@@ -14,9 +20,9 @@ public abstract class AbstractService implements Service {
 			throw new RuntimeException("Error opening service.", e);
 		}
 	}
-	
+
 	protected abstract void doOpen();
-	
+
 	@Override
 	public boolean isOpened() {
 		return this.opened;
@@ -38,14 +44,14 @@ public abstract class AbstractService implements Service {
 			throw new RuntimeException("Error closing service.", e);
 		}
 	}
-	
+
 	protected abstract void doClose();
-	
+
 	@Override
 	public boolean isClosed() {
 		return !this.opened;
 	}
-	
+
 	@Override
 	public void ensureClosed() {
 		if (!this.isClosed()) {

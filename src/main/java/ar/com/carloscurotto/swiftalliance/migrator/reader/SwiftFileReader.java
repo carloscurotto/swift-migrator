@@ -15,6 +15,13 @@ import ar.com.carloscurotto.swiftalliance.migrator.service.AbstractService;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
+/**
+ * This is a simple implementation of {@link Reader} that knows how to read
+ * {@link SwiftRecord} records from a specified file.
+ * 
+ * @author carloscurotto
+ * 
+ */
 public class SwiftFileReader extends AbstractService implements
 		Reader<SwiftRecord> {
 
@@ -32,40 +39,43 @@ public class SwiftFileReader extends AbstractService implements
 	@Override
 	public SwiftRecord read() {
 		this.processCurrentRecordLines();
-		
+
 		SwiftRecord record = new SwiftRecord();
-		
+
 		record.setLocalBank(this.extractLocalBank());
 		record.setLocalSession(this.extractLocalSession());
 		record.setLocalSequence(this.extractLocalSequence());
 		record.setTransactionType(this.extractTransactionType());
 		record.setMessageType(this.extractMessageType());
 		record.setLocalTime(this.extractLocalTime());
-		
+
 		record.setForeignBank(this.extractForeignBank());
 		record.setForeignSession(this.extractForeignSession());
 		record.setForeignSequence(this.extractForeignSequence());
 		record.setForeignTime(this.extractForeignTime());
-		
+
 		record.setGenericFields(extractGenericFields());
-		
+
 		return record;
 	}
-	
+
 	private void processCurrentRecordLines() {
 		int processedLinesIndex = 0;
 		Vector<String> processedLines = new Vector<String>();
-		for (int currentLinesIndex = 0; currentLinesIndex < this.currentRecordLines.size(); currentLinesIndex++) {
+		for (int currentLinesIndex = 0; currentLinesIndex < this.currentRecordLines
+				.size(); currentLinesIndex++) {
 			String currentLine = this.currentRecordLines.get(currentLinesIndex);
-			if (!(currentLine.startsWith("{1:") || currentLine.startsWith(":") || currentLine.startsWith("-}$"))) {
+			if (!(currentLine.startsWith("{1:") || currentLine.startsWith(":") || currentLine
+					.startsWith("-}$"))) {
 				if (currentLinesIndex != 0) {
-					String previousLine = processedLines.remove(processedLinesIndex - 1);
+					String previousLine = processedLines
+							.remove(processedLinesIndex - 1);
 					processedLines.add(previousLine + currentLine);
 				}
 			} else {
 				processedLines.add(processedLinesIndex, currentLine);
 				processedLinesIndex++;
-			}			
+			}
 		}
 		this.currentRecordLines = new ArrayList<String>(processedLines);
 	}
@@ -74,8 +84,10 @@ public class SwiftFileReader extends AbstractService implements
 		Map<String, String> result = new HashMap<String, String>();
 		for (String line : this.currentRecordLines) {
 			if (line.startsWith(":")) {
-				String key = line.substring(1, line.substring(1).indexOf(":") + 1);
-				String value = line.substring(line.substring(1).indexOf(":") + 2);
+				String key = line.substring(1,
+						line.substring(1).indexOf(":") + 1);
+				String value = line
+						.substring(line.substring(1).indexOf(":") + 2);
 				result.put(key, value);
 			}
 		}
@@ -85,21 +97,21 @@ public class SwiftFileReader extends AbstractService implements
 	private String extractForeignTime() {
 		String line = currentRecordLines.get(0);
 		int beginIndex = line.indexOf("N}") - 10;
-		int endIndex = beginIndex + 10;		
+		int endIndex = beginIndex + 10;
 		return line.substring(beginIndex, endIndex);
 	}
 
 	private Long extractForeignSequence() {
 		String line = currentRecordLines.get(0);
 		int beginIndex = line.indexOf("N}") - 16;
-		int endIndex = beginIndex + 6;		
+		int endIndex = beginIndex + 6;
 		return Long.parseLong(line.substring(beginIndex, endIndex));
 	}
 
 	private Long extractForeignSession() {
 		String line = currentRecordLines.get(0);
 		int beginIndex = line.indexOf("N}") - 20;
-		int endIndex = beginIndex + 4;		
+		int endIndex = beginIndex + 4;
 		return Long.parseLong(line.substring(beginIndex, endIndex));
 	}
 
@@ -107,28 +119,28 @@ public class SwiftFileReader extends AbstractService implements
 		String line = currentRecordLines.get(0);
 		int beginIndex = line.indexOf("{2:") + 17;
 		int endIndex = line.indexOf("N}") - 20;
-		return line.substring(beginIndex, endIndex);				
- 	}
+		return line.substring(beginIndex, endIndex);
+	}
 
 	private Integer extractMessageType() {
 		String line = currentRecordLines.get(0);
 		int beginIndex = line.indexOf("{2:") + 4;
 		int endIndex = beginIndex + 3;
-		return Integer.parseInt(line.substring(beginIndex, endIndex));				
+		return Integer.parseInt(line.substring(beginIndex, endIndex));
 	}
 
 	private String extractTransactionType() {
 		String line = currentRecordLines.get(0);
 		int beginIndex = line.indexOf("{2:") + 3;
 		int endIndex = beginIndex + 1;
-		return line.substring(beginIndex, endIndex);				
+		return line.substring(beginIndex, endIndex);
 	}
 
 	private String extractLocalTime() {
 		String line = currentRecordLines.get(0);
 		int beginIndex = line.indexOf("{2:") + 7;
 		int endIndex = beginIndex + 10;
-		return line.substring(beginIndex, endIndex);		
+		return line.substring(beginIndex, endIndex);
 	}
 
 	private Long extractLocalSession() {
@@ -166,7 +178,7 @@ public class SwiftFileReader extends AbstractService implements
 						this.currentRecordLines.add(line);
 						if (line.endsWith("-}$")) {
 							endRecord = true;
-						}						
+						}
 					}
 				}
 				return endRecord;
